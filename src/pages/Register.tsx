@@ -17,8 +17,17 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name.trim() || !email.trim() || !password.trim()) {
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
+    if (!trimmedName || !trimmedEmail || !password.trim()) {
       toast.error("Please fill in all fields");
+      return;
+    }
+
+    // Validate name length (matching database constraint)
+    if (trimmedName.length < 1 || trimmedName.length > 100) {
+      toast.error("Name must be between 1 and 100 characters");
       return;
     }
 
@@ -81,6 +90,7 @@ const Register = () => {
                   onChange={(e) => setName(e.target.value)}
                   className="pl-10 h-12 bg-muted/50 border-border"
                   required
+                  maxLength={100}
                 />
               </div>
             </div>
