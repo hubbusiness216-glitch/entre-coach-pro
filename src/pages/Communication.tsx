@@ -113,8 +113,16 @@ const Communication = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (inputText.trim().length < 20) {
+    const trimmedText = inputText.trim();
+
+    if (trimmedText.length < 20) {
       toast.error("Please enter at least 20 characters for accurate evaluation");
+      return;
+    }
+
+    // Validate length constraint (matching database constraint)
+    if (trimmedText.length > 10000) {
+      toast.error("Text must be 10,000 characters or less");
       return;
     }
 
@@ -241,9 +249,10 @@ const Communication = () => {
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       className="min-h-[200px] bg-muted/50"
+                      maxLength={10000}
                     />
                     <p className="text-xs text-muted-foreground text-right">
-                      {inputText.length} characters
+                      {inputText.length}/10,000 characters
                     </p>
                   </div>
 

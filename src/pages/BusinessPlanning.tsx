@@ -108,8 +108,22 @@ const BusinessPlanning = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!businessInterest || !budget || !location.trim() || !goals.trim()) {
+    const trimmedLocation = location.trim();
+    const trimmedGoals = goals.trim();
+
+    if (!businessInterest || !budget || !trimmedLocation || !trimmedGoals) {
       toast.error("Please fill in all fields");
+      return;
+    }
+
+    // Validate length constraints (matching database constraints)
+    if (trimmedLocation.length > 200) {
+      toast.error("Location must be 200 characters or less");
+      return;
+    }
+
+    if (trimmedGoals.length > 5000) {
+      toast.error("Goals must be 5000 characters or less");
       return;
     }
 
@@ -243,7 +257,9 @@ const BusinessPlanning = () => {
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       className="h-12 bg-muted/50"
+                      maxLength={200}
                     />
+                    <p className="text-xs text-muted-foreground text-right">{location.length}/200</p>
                   </div>
 
                   <div className="space-y-2">
@@ -259,7 +275,9 @@ const BusinessPlanning = () => {
                       value={goals}
                       onChange={(e) => setGoals(e.target.value)}
                       className="min-h-[120px] bg-muted/50"
+                      maxLength={5000}
                     />
+                    <p className="text-xs text-muted-foreground text-right">{goals.length}/5000</p>
                   </div>
 
                   <Button
