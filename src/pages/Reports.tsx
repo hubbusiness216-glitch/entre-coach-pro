@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  generateCommunicationReportPDF,
+  generateBusinessPlanReportPDF,
+} from "@/utils/pdfGenerator";
 import {
   BarChart3,
   ArrowLeft,
@@ -11,6 +16,11 @@ import {
   Calendar,
   Target,
   Sparkles,
+  Download,
+  FileText,
+  Loader2,
+  FolderOpen,
+  Trash2,
 } from "lucide-react";
 import {
   AreaChart,
@@ -46,11 +56,22 @@ interface CommunicationEval {
   created_at: string;
 }
 
+interface SavedReport {
+  id: string;
+  report_name: string;
+  report_type: string;
+  file_path: string;
+  created_at: string;
+}
+
 const Reports = () => {
   const navigate = useNavigate();
   const [businessInputs, setBusinessInputs] = useState<BusinessInput[]>([]);
   const [communicationEvals, setCommunicationEvals] = useState<CommunicationEval[]>([]);
+  const [savedReports, setSavedReports] = useState<SavedReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generatingPDF, setGeneratingPDF] = useState<string | null>(null);
+  const [userName, setUserName] = useState("User");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,6 +80,17 @@ const Reports = () => {
       if (!session) {
         navigate("/login");
         return;
+      }
+
+      // Fetch user profile
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (profileData) {
+        setUserName(profileData.name);
       }
 
       // Fetch business inputs
@@ -75,13 +107,204 @@ const Reports = () => {
         .eq("user_id", session.user.id)
         .order("created_at", { ascending: false });
 
+      // Fetch saved reports
+      const { data: reportsData } = await supabase
+        .from("saved_reports")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("created_at", { ascending: false });
+
       setBusinessInputs(businessData || []);
       setCommunicationEvals(commData || []);
+      setSavedReports(reportsData || []);
       setLoading(false);
     };
 
     fetchData();
   }, [navigate]);
+
+  const generateAndSaveCommunicationPDF = async () => {
+    if (communicationEvals.length === 0) {
+      toast.error("No communication evaluations to generate report");
+      return;
+    }
+
+    setGeneratingPDF("communication");
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const latestEval = communicationEvals[0];
+      const avgFluency = Math.round(communicationEvals.reduce((a, e) => a + e.fluency_score, 0) / communicationEvals.length);
+      const avgGrammar = Math.round(communicationEvals.reduce((a, e) => a + e.grammar_score, 0) / communicationEvals.length);
+      const avgPronunciation = Math.round(communicationEvals.reduce((a, e) => a + e.pronunciation_score, 0) / communicationEvals.length);
+      const avgListening = Math.round(communicationEvals.reduce((a, e) => a + e.listening_score, 0) / communicationEvals.length);
+      const overall = Math.round((avgFluency + avgGrammar + avgPronunciation + avgListening) / 4);
+
+      const scores = {
+        fluency: avgFluency,
+        grammar: avgGrammar,
+        pronunciation: avgPronunciation,
+        listening: avgListening,
+        overall,
+        feedback: latestEval.feedback || "Keep practicing to improve your communication skills.",
+        strengths: overall >= 70 ? ["Good overall communication", "Consistent performance"] : ["Showing improvement"],
+        improvements: overall < 70 ? ["Practice more frequently", "Focus on weak areas"] : ["Continue refining skills"],
+        date: new Date().toLocaleDateString(),
+      };
+
+      const doc = generateCommunicationReportPDF(userName, scores);
+      const pdfBlob = doc.output('blob');
+      
+      const fileName = `communication_report_${Date.now()}.pdf`;
+      const filePath = `${user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('reports')
+        .upload(filePath, pdfBlob, {
+          contentType: 'application/pdf',
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Save report reference
+      await supabase.from("saved_reports").insert({
+        user_id: user.id,
+        report_name: `Communication Report - ${new Date().toLocaleDateString()}`,
+        report_type: "communication",
+        file_path: filePath,
+      });
+
+      // Download the PDF
+      doc.save(`Communication_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+
+      // Refresh saved reports
+      const { data: reportsData } = await supabase
+        .from("saved_reports")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      setSavedReports(reportsData || []);
+      toast.success("PDF report generated and saved!");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF report");
+    } finally {
+      setGeneratingPDF(null);
+    }
+  };
+
+  const generateAndSaveBusinessPDF = async () => {
+    if (businessInputs.length === 0) {
+      toast.error("No business plans to generate report");
+      return;
+    }
+
+    setGeneratingPDF("business");
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const plans = businessInputs.map(plan => ({
+        interest: plan.business_interest,
+        budget: plan.budget,
+        location: plan.location,
+        goals: plan.goals,
+        date: new Date(plan.created_at).toLocaleDateString(),
+      }));
+
+      const doc = generateBusinessPlanReportPDF(userName, plans);
+      const pdfBlob = doc.output('blob');
+      
+      const fileName = `business_report_${Date.now()}.pdf`;
+      const filePath = `${user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('reports')
+        .upload(filePath, pdfBlob, {
+          contentType: 'application/pdf',
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Save report reference
+      await supabase.from("saved_reports").insert({
+        user_id: user.id,
+        report_name: `Business Plans Report - ${new Date().toLocaleDateString()}`,
+        report_type: "business",
+        file_path: filePath,
+      });
+
+      // Download the PDF
+      doc.save(`Business_Plans_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+
+      // Refresh saved reports
+      const { data: reportsData } = await supabase
+        .from("saved_reports")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      setSavedReports(reportsData || []);
+      toast.success("PDF report generated and saved!");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF report");
+    } finally {
+      setGeneratingPDF(null);
+    }
+  };
+
+  const downloadSavedReport = async (report: SavedReport) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('reports')
+        .download(report.file_path);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${report.report_name.replace(/\s+/g, '_')}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success("Report downloaded!");
+    } catch (error) {
+      console.error("Error downloading report:", error);
+      toast.error("Failed to download report");
+    }
+  };
+
+  const deleteSavedReport = async (report: SavedReport) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Delete from storage
+      await supabase.storage
+        .from('reports')
+        .remove([report.file_path]);
+
+      // Delete from database
+      await supabase
+        .from("saved_reports")
+        .delete()
+        .eq("id", report.id);
+
+      setSavedReports(prev => prev.filter(r => r.id !== report.id));
+      toast.success("Report deleted!");
+    } catch (error) {
+      console.error("Error deleting report:", error);
+      toast.error("Failed to delete report");
+    }
+  };
 
   // Calculate averages
   const avgCommunication = communicationEvals.length > 0
@@ -163,6 +386,84 @@ const Reports = () => {
               Track your business planning activities and communication skill improvements over time.
             </p>
           </div>
+
+          {/* PDF Generation Buttons */}
+          <div className="grid md:grid-cols-2 gap-4 mb-10">
+            <Button
+              variant="default"
+              size="lg"
+              className="h-16"
+              onClick={generateAndSaveCommunicationPDF}
+              disabled={generatingPDF === "communication" || communicationEvals.length === 0}
+            >
+              {generatingPDF === "communication" ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : (
+                <Download className="w-5 h-5 mr-2" />
+              )}
+              Download Communication Skills Report (PDF)
+            </Button>
+            <Button
+              variant="teal"
+              size="lg"
+              className="h-16"
+              onClick={generateAndSaveBusinessPDF}
+              disabled={generatingPDF === "business" || businessInputs.length === 0}
+            >
+              {generatingPDF === "business" ? (
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              ) : (
+                <Download className="w-5 h-5 mr-2" />
+              )}
+              Download Business Plans Report (PDF)
+            </Button>
+          </div>
+
+          {/* Saved Reports Section */}
+          {savedReports.length > 0 && (
+            <div className="card-elevated p-6 mb-10">
+              <h3 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
+                <FolderOpen className="w-5 h-5 text-primary" />
+                Saved Reports (File Manager)
+              </h3>
+              <div className="grid gap-3">
+                {savedReports.map((report) => (
+                  <div
+                    key={report.id}
+                    className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border border-border"
+                  >
+                    <div className="flex items-center gap-3">
+                      <FileText className="w-5 h-5 text-secondary" />
+                      <div>
+                        <p className="font-medium text-sm">{report.report_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {report.report_type === 'communication' ? 'Communication Skills' : 'Business Plans'} • 
+                          {new Date(report.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downloadSavedReport(report)}
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteSavedReport(report)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
