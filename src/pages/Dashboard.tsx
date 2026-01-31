@@ -12,10 +12,15 @@ import {
   ArrowRight,
   TrendingUp,
   Target,
-  Sparkles
+  Sparkles,
+  Mic,
+  Trophy
 } from "lucide-react";
 import { toast } from "sonner";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { GamificationWidget } from "@/components/GamificationWidget";
+import { WeeklyGoals } from "@/components/WeeklyGoals";
+import { AchievementGallery } from "@/components/AchievementGallery";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -88,7 +93,7 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="pt-28 pb-16 px-6">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-7xl">
           {/* Welcome Section */}
           <div className="mb-12">
             <h1 className="font-display text-4xl font-bold mb-3">
@@ -99,131 +104,149 @@ const Dashboard = () => {
             </p>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="card-elevated p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Target className="w-6 h-6 text-primary" />
-                </div>
-                <TrendingUp className="w-5 h-5 text-green-500" />
-              </div>
-              <h3 className="text-2xl font-display font-bold">Business Plans</h3>
-              <p className="text-sm text-muted-foreground">Track your planning progress</p>
-            </div>
-            
-            <div className="card-elevated p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center">
-                  <MessageSquare className="w-6 h-6 text-secondary" />
-                </div>
-                <Sparkles className="w-5 h-5 text-secondary" />
-              </div>
-              <h3 className="text-2xl font-display font-bold">Communication</h3>
-              <p className="text-sm text-muted-foreground">Skill assessments completed</p>
-            </div>
-            
-            <div className="card-elevated p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
-                  <BarChart3 className="w-6 h-6 text-accent" />
-                </div>
-                <TrendingUp className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="text-2xl font-display font-bold">Progress</h3>
-              <p className="text-sm text-muted-foreground">View detailed reports</p>
-            </div>
-          </div>
-
-          {/* Modules Grid */}
-          <h2 className="font-display text-2xl font-bold mb-6">Your Modules</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Business Planning Module */}
-            <div className="card-elevated p-8 group hover:border-primary/50 transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-gold-light flex items-center justify-center glow-gold group-hover:scale-110 transition-transform">
-                  <Brain className="w-8 h-8 text-primary-foreground" />
-                </div>
-                <div>
-                  <h3 className="font-display text-2xl font-bold">Business Planning</h3>
-                  <span className="text-sm text-muted-foreground">AI-Powered Recommendations</span>
-                </div>
-              </div>
-              <p className="text-muted-foreground mb-6">
-                Get personalized business ideas, startup cost estimates, and step-by-step 
-                roadmaps tailored to your interests and resources.
-              </p>
-              <ul className="space-y-2 mb-6 text-sm text-muted-foreground">
-                <li>• Business idea suggestions</li>
-                <li>• Budget analysis</li>
-                <li>• Resource recommendations</li>
-              </ul>
-              <Button variant="hero" className="w-full" asChild>
-                <Link to="/business-planning">
-                  Start Planning
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-              </Button>
-            </div>
-
-            {/* Communication Evaluation Module */}
-            <div className="card-elevated p-8 group hover:border-secondary/50 transition-all duration-300">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-secondary to-teal-light flex items-center justify-center glow-teal group-hover:scale-110 transition-transform">
-                  <MessageSquare className="w-8 h-8 text-secondary-foreground" />
-                </div>
-                <div>
-                  <h3 className="font-display text-2xl font-bold">Communication Skills</h3>
-                  <span className="text-sm text-muted-foreground">NLP-Based Evaluation</span>
-                </div>
-              </div>
-              <p className="text-muted-foreground mb-6">
-                Assess and improve your communication skills crucial for business success 
-                with our simulated NLP evaluation system.
-              </p>
-              <ul className="space-y-2 mb-6 text-sm text-muted-foreground">
-                <li>• Fluency assessment</li>
-                <li>• Grammar analysis</li>
-                <li>• Personalized feedback</li>
-              </ul>
-              <Button variant="teal" className="w-full" asChild>
-                <Link to="/communication">
-                  Evaluate Skills
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          {/* Reports Section */}
-          <div className="mt-12">
-            <div className="card-elevated p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center">
-                    <BarChart3 className="w-7 h-7 text-accent" />
+          {/* Main Grid Layout */}
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Left Column - Main Modules */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="card-elevated p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                      <Target className="w-6 h-6 text-primary" />
+                    </div>
+                    <TrendingUp className="w-5 h-5 text-secondary" />
                   </div>
-                  <div>
-                    <h3 className="font-display text-xl font-bold">Reports & Analytics</h3>
-                    <p className="text-sm text-muted-foreground">Track your progress over time</p>
-                  </div>
+                  <h3 className="text-2xl font-display font-bold">Business Plans</h3>
+                  <p className="text-sm text-muted-foreground">Track your planning progress</p>
                 </div>
-                <Button variant="outline" asChild>
-                  <Link to="/reports">
-                    View All Reports
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                </Button>
+                
+                <div className="card-elevated p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center">
+                      <MessageSquare className="w-6 h-6 text-secondary" />
+                    </div>
+                    <Sparkles className="w-5 h-5 text-secondary" />
+                  </div>
+                  <h3 className="text-2xl font-display font-bold">Communication</h3>
+                  <p className="text-sm text-muted-foreground">Skill assessments completed</p>
+                </div>
+                
+                <div className="card-elevated p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
+                      <BarChart3 className="w-6 h-6 text-accent" />
+                    </div>
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-display font-bold">Progress</h3>
+                  <p className="text-sm text-muted-foreground">View detailed reports</p>
+                </div>
               </div>
-              <p className="text-muted-foreground">
-                Access comprehensive reports showing your business readiness summary, 
-                communication skill scores, and improvement feedback with visual analytics.
-              </p>
+
+              {/* Modules Grid */}
+              <h2 className="font-display text-2xl font-bold">Your Modules</h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Business Planning Module */}
+                <div className="card-elevated p-6 group hover:border-primary/50 transition-all duration-300">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-gold-light flex items-center justify-center glow-gold group-hover:scale-110 transition-transform">
+                      <Brain className="w-7 h-7 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-xl font-bold">Business Planning</h3>
+                      <span className="text-xs text-muted-foreground">AI-Powered Recommendations</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Get personalized business ideas, startup cost estimates, and roadmaps.
+                  </p>
+                  <Button variant="hero" className="w-full" size="sm" asChild>
+                    <Link to="/business-planning">
+                      Start Planning
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </Button>
+                </div>
+
+                {/* Communication Module */}
+                <div className="card-elevated p-6 group hover:border-secondary/50 transition-all duration-300">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary to-teal-light flex items-center justify-center glow-teal group-hover:scale-110 transition-transform">
+                      <MessageSquare className="w-7 h-7 text-secondary-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-xl font-bold">Communication Skills</h3>
+                      <span className="text-xs text-muted-foreground">NLP-Based Evaluation</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Assess and improve your speaking and listening skills.
+                  </p>
+                  <Button variant="teal" className="w-full" size="sm" asChild>
+                    <Link to="/communication">
+                      Evaluate Skills
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </Button>
+                </div>
+
+                {/* Pitch Practice Module */}
+                <div className="card-elevated p-6 group hover:border-accent/50 transition-all duration-300">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent to-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Mic className="w-7 h-7 text-accent-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-xl font-bold">Pitch Practice</h3>
+                      <span className="text-xs text-muted-foreground">Scenario-Based Training</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Practice investor pitches, client meetings, and partnerships.
+                  </p>
+                  <Button variant="outline" className="w-full border-accent/50 hover:bg-accent/10" size="sm" asChild>
+                    <Link to="/pitch-practice">
+                      Practice Now
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </Button>
+                </div>
+
+                {/* Reports Module */}
+                <div className="card-elevated p-6 group hover:border-muted-foreground/30 transition-all duration-300">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <BarChart3 className="w-7 h-7 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-xl font-bold">Reports & Files</h3>
+                      <span className="text-xs text-muted-foreground">Analytics & Downloads</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    View analytics, download reports, and manage your files.
+                  </p>
+                  <Button variant="outline" className="w-full" size="sm" asChild>
+                    <Link to="/reports">
+                      View Reports
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Gamification */}
+            <div className="space-y-6">
+              <GamificationWidget />
+              <WeeklyGoals />
+              <AchievementGallery />
             </div>
           </div>
 
           {/* Academic Note */}
-          <div className="mt-8 text-center">
+          <div className="mt-12 text-center">
             <p className="text-xs text-muted-foreground">
               ENTREPRENEUR-X is a prototype system. AI outputs are simulated for academic demonstration purposes.
             </p>
