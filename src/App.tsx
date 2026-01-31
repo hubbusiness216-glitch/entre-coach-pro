@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import BusinessPlanning from "./pages/BusinessPlanning";
 import Communication from "./pages/Communication";
 import Reports from "./pages/Reports";
+import PitchPractice from "./pages/PitchPractice";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/business-planning" element={<BusinessPlanning />} />
           <Route path="/communication" element={<Communication />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/pitch-practice" element={<PitchPractice />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -80,6 +80,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pitch_sessions: {
+        Row: {
+          ai_feedback: string | null
+          created_at: string
+          id: string
+          scenario_type: string
+          score: number | null
+          user_id: string
+          user_response: string | null
+        }
+        Insert: {
+          ai_feedback?: string | null
+          created_at?: string
+          id?: string
+          scenario_type: string
+          score?: number | null
+          user_id: string
+          user_response?: string | null
+        }
+        Update: {
+          ai_feedback?: string | null
+          created_at?: string
+          id?: string
+          scenario_type?: string
+          score?: number | null
+          user_id?: string
+          user_response?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -134,6 +164,96 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_type: Database["public"]["Enums"]["achievement_type"]
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          achievement_type: Database["public"]["Enums"]["achievement_type"]
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          achievement_type?: Database["public"]["Enums"]["achievement_type"]
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          level: number
+          longest_streak: number
+          total_xp: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          level?: number
+          longest_streak?: number
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          level?: number
+          longest_streak?: number
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      weekly_goals: {
+        Row: {
+          completed: boolean
+          created_at: string
+          current_value: number
+          goal_type: string
+          id: string
+          target_value: number
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          current_value?: number
+          goal_type: string
+          id?: string
+          target_value?: number
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          current_value?: number
+          goal_type?: string
+          id?: string
+          target_value?: number
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -142,7 +262,18 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      achievement_type:
+        | "first_plan"
+        | "first_evaluation"
+        | "streak_3"
+        | "streak_7"
+        | "streak_30"
+        | "communication_master"
+        | "listener_pro"
+        | "pitch_perfect"
+        | "goal_achiever"
+        | "report_generator"
+        | "consistency_king"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -269,6 +400,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      achievement_type: [
+        "first_plan",
+        "first_evaluation",
+        "streak_3",
+        "streak_7",
+        "streak_30",
+        "communication_master",
+        "listener_pro",
+        "pitch_perfect",
+        "goal_achiever",
+        "report_generator",
+        "consistency_king",
+      ],
+    },
   },
 } as const
