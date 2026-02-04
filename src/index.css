@@ -7,6 +7,59 @@
 
 @layer base {
   :root {
+    /* Light mode (default) */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 173 80% 40%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 263 70% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 38 92% 50%;
+
+    --radius: 0.75rem;
+
+    /* Custom gradients - Light */
+    --gradient-gold: linear-gradient(135deg, hsl(38, 92%, 50%) 0%, hsl(45, 93%, 47%) 100%);
+    --gradient-teal: linear-gradient(135deg, hsl(173, 80%, 40%) 0%, hsl(180, 70%, 45%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(220, 14%, 96%) 0%, hsl(220, 14%, 98%) 50%, hsl(263, 30%, 97%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0, 0%, 100%) 0%, hsl(220, 14%, 98%) 100%);
+
+    /* Shadows - Light */
+    --shadow-glow-gold: 0 0 40px hsl(38 92% 50% / 0.2);
+    --shadow-glow-teal: 0 0 40px hsl(173 80% 40% / 0.2);
+    --shadow-card: 0 4px 24px hsl(220 13% 91% / 0.5);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 38 92% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 38 92% 50%;
+  }
+
+  .dark {
     --background: 222 47% 6%;
     --foreground: 210 40% 98%;
 
@@ -35,15 +88,13 @@
     --input: 222 30% 15%;
     --ring: 38 92% 50%;
 
-    --radius: 0.75rem;
-
-    /* Custom gradients */
+    /* Custom gradients - Dark */
     --gradient-gold: linear-gradient(135deg, hsl(38, 92%, 50%) 0%, hsl(45, 93%, 47%) 100%);
     --gradient-teal: linear-gradient(135deg, hsl(173, 80%, 40%) 0%, hsl(180, 70%, 45%) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(222, 47%, 8%) 0%, hsl(222, 47%, 12%) 50%, hsl(263, 30%, 15%) 100%);
     --gradient-card: linear-gradient(180deg, hsl(222, 47%, 11%) 0%, hsl(222, 47%, 8%) 100%);
 
-    /* Shadows */
+    /* Shadows - Dark */
     --shadow-glow-gold: 0 0 40px hsl(38 92% 50% / 0.3);
     --shadow-glow-teal: 0 0 40px hsl(173 80% 40% / 0.3);
     --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.4);
@@ -129,6 +180,58 @@
     background-size: 200% 200%;
   }
 
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.3s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out forwards;
+  }
+
+  .animate-bounce-subtle {
+    animation: bounce-subtle 2s ease-in-out infinite;
+  }
+
+  /* Micro-interactions */
+  .hover-lift {
+    @apply transition-all duration-300;
+  }
+  .hover-lift:hover {
+    @apply -translate-y-1 shadow-lg;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+  .hover-glow:hover {
+    @apply shadow-lg shadow-primary/20;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200;
+  }
+  .hover-scale:hover {
+    @apply scale-105;
+  }
+
+  .click-shrink {
+    @apply transition-transform duration-100;
+  }
+  .click-shrink:active {
+    @apply scale-95;
+  }
+
+  /* Stagger animation delays */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-20px); }
@@ -138,5 +241,25 @@
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
+  }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
   }
 }
