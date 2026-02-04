@@ -14,6 +14,7 @@ import {
   Lightbulb,
   BarChart3
 } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
   return (
@@ -34,10 +35,11 @@ const Index = () => {
             <a href="#challenges" className="text-muted-foreground hover:text-foreground transition-colors">Challenges</a>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild>
+            <ThemeToggle />
+            <Button variant="ghost" asChild className="hover-scale">
               <Link to="/login">Login</Link>
             </Button>
-            <Button variant="hero" asChild>
+            <Button variant="hero" asChild className="click-shrink">
               <Link to="/register">Get Started</Link>
             </Button>
           </div>

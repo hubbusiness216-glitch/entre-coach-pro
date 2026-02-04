@@ -14,18 +14,22 @@ import {
   Target,
   Sparkles,
   Mic,
-  Trophy
+  Trophy,
+  HelpCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { GamificationWidget } from "@/components/GamificationWidget";
 import { WeeklyGoals } from "@/components/WeeklyGoals";
 import { AchievementGallery } from "@/components/AchievementGallery";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { OnboardingTour, useOnboarding } from "@/components/OnboardingTour";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const { showTour, setShowTour, resetTour } = useOnboarding();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -79,11 +83,21 @@ const Dashboard = () => {
             <span className="font-display text-xl font-bold">ENTREPRENEUR-X</span>
           </div>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={resetTour}
+              className="h-9 w-9 transition-all duration-200 hover:scale-110"
+              title="Restart tour"
+            >
+              <HelpCircle className="h-4 w-4" />
+            </Button>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted">
               <User className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm">{userName}</span>
             </div>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="hover-scale click-shrink">
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
@@ -110,7 +124,7 @@ const Dashboard = () => {
             <div className="lg:col-span-2 space-y-8">
               {/* Quick Stats */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="card-elevated p-6">
+                <div className="card-elevated p-6 hover-lift animate-fade-in opacity-0 stagger-1">
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
                       <Target className="w-6 h-6 text-primary" />
@@ -121,7 +135,7 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground">Track your planning progress</p>
                 </div>
                 
-                <div className="card-elevated p-6">
+                <div className="card-elevated p-6 hover-lift animate-fade-in opacity-0 stagger-2">
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center">
                       <MessageSquare className="w-6 h-6 text-secondary" />
@@ -132,7 +146,7 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground">Skill assessments completed</p>
                 </div>
                 
-                <div className="card-elevated p-6">
+                <div className="card-elevated p-6 hover-lift animate-fade-in opacity-0 stagger-3">
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
                       <BarChart3 className="w-6 h-6 text-accent" />
@@ -148,7 +162,7 @@ const Dashboard = () => {
               <h2 className="font-display text-2xl font-bold">Your Modules</h2>
               <div className="grid md:grid-cols-2 gap-6">
                 {/* Business Planning Module */}
-                <div className="card-elevated p-6 group hover:border-primary/50 transition-all duration-300">
+                <div className="card-elevated p-6 group hover:border-primary/50 transition-all duration-300 hover-lift animate-fade-in opacity-0 stagger-1">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-gold-light flex items-center justify-center glow-gold group-hover:scale-110 transition-transform">
                       <Brain className="w-7 h-7 text-primary-foreground" />
@@ -161,16 +175,16 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Get personalized business ideas, startup cost estimates, and roadmaps.
                   </p>
-                  <Button variant="hero" className="w-full" size="sm" asChild>
+                  <Button variant="hero" className="w-full click-shrink" size="sm" asChild>
                     <Link to="/business-planning">
                       Start Planning
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </Button>
                 </div>
 
                 {/* Communication Module */}
-                <div className="card-elevated p-6 group hover:border-secondary/50 transition-all duration-300">
+                <div className="card-elevated p-6 group hover:border-secondary/50 transition-all duration-300 hover-lift animate-fade-in opacity-0 stagger-2">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary to-teal-light flex items-center justify-center glow-teal group-hover:scale-110 transition-transform">
                       <MessageSquare className="w-7 h-7 text-secondary-foreground" />
@@ -183,16 +197,16 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Assess and improve your speaking and listening skills.
                   </p>
-                  <Button variant="teal" className="w-full" size="sm" asChild>
+                  <Button variant="teal" className="w-full click-shrink" size="sm" asChild>
                     <Link to="/communication">
                       Evaluate Skills
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </Button>
                 </div>
 
                 {/* Pitch Practice Module */}
-                <div className="card-elevated p-6 group hover:border-accent/50 transition-all duration-300">
+                <div className="card-elevated p-6 group hover:border-accent/50 transition-all duration-300 hover-lift animate-fade-in opacity-0 stagger-3">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent to-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                       <Mic className="w-7 h-7 text-accent-foreground" />
@@ -205,16 +219,16 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     Practice investor pitches, client meetings, and partnerships.
                   </p>
-                  <Button variant="outline" className="w-full border-accent/50 hover:bg-accent/10" size="sm" asChild>
+                  <Button variant="outline" className="w-full border-accent/50 hover:bg-accent/10 click-shrink" size="sm" asChild>
                     <Link to="/pitch-practice">
                       Practice Now
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </Button>
                 </div>
 
                 {/* Reports Module */}
-                <div className="card-elevated p-6 group hover:border-muted-foreground/30 transition-all duration-300">
+                <div className="card-elevated p-6 group hover:border-muted-foreground/30 transition-all duration-300 hover-lift animate-fade-in opacity-0 stagger-4">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center group-hover:scale-110 transition-transform">
                       <BarChart3 className="w-7 h-7 text-muted-foreground" />
@@ -227,10 +241,10 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground mb-4">
                     View analytics, download reports, and manage your files.
                   </p>
-                  <Button variant="outline" className="w-full" size="sm" asChild>
+                  <Button variant="outline" className="w-full click-shrink" size="sm" asChild>
                     <Link to="/reports">
                       View Reports
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </Button>
                 </div>
@@ -253,6 +267,8 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+      {/* Onboarding Tour */}
+      {showTour && <OnboardingTour onComplete={() => setShowTour(false)} />}
     </div>
   );
 };
